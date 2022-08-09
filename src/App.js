@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import './App.css';
+import {Slider} from "./slider/Slider";
 
 
 const App = (props) => {
@@ -34,6 +35,7 @@ const App = (props) => {
                 <button onClick={rndCounter}>RND</button>
                 <button onClick={resetCounter}>RESET</button>
             </div>
+            <Slider/>
         </div>
     )
 }

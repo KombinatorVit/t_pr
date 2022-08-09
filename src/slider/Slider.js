@@ -1,7 +1,8 @@
 import {useState} from "react";
 import {Container} from "react-bootstrap";
+import './slider.css'
 
-const Slider = () => {
+export const Slider = () => {
 
 
     const [slide, setSlide] = useState(0)
