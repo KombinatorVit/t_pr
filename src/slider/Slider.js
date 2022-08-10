@@ -1,12 +1,13 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Container} from "react-bootstrap";
 import './slider.css'
 
-export const Slider = () => {
+export const Slider = (props) => {
 
 
     const [slide, setSlide] = useState(0)
     const [autoplay, setAutoplay] = useState(false)
+
 
     function changeSlide(i) {
         setSlide(slide => slide + i)

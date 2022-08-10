@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import './App.css';
 import {Slider} from "./slider/Slider";
+import {Convertor} from "./convertor/Convertor";
 
 
 const App = (props) => {
@@ -36,6 +37,7 @@ const App = (props) => {
                 <button onClick={resetCounter}>RESET</button>
             </div>
             <Slider/>
+            <Convertor />
         </div>
     )
 }
