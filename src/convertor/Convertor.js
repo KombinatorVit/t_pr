@@ -1,51 +1,76 @@
 import './convertor.css'
 import {useEffect, useState} from "react";
 
-export  function Convertor() {
-    const [curr, setCurr] = useState(0);
-    const [input, setInput] = useState(0);
-    const [currName, setCurrName] = useState("");
-    const [items, setItems] = useState([]);
+export  function Convertor(props) {
+    const [apiData, setApiData] = useState('');
+    const [count, setCount] = useState(props.start);
+    const [result, setResult] = useState(0);
+    const [currentSign, setCurrentSign] = useState(null);
+
+    const getResource = async (url) => {
+        let res = await fetch(url);
+
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, received ${res.status}`);
+        }
+
+        return await res.json();
+    };
+    const getCharacter = async () => {
+        const res = await getResource(
+            "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchangenew?json"
+        );
+        setApiData(res);
+
+    };
 
     useEffect(() => {
-        fetch("https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json")
-            .then((res) => res.json())
-            .then((data) => setItems(data));
+        getCharacter();
     }, []);
 
-    function searchVal(name) {
-        items.forEach((i) => {
-            if (i.cc === name) {
-                setCurr((input / i.rate).toFixed(1));
-                setCurrName(i.cc);
-            }
-        });
-    }
+    const updateCounterState = (e) => {
+        setCount(e.target.value);
+    };
+    const resetCounter = () => {
+        setResult(null);
+        setCurrentSign(null);
+    };
 
-    function setInputValue({ target }) {
-        const value = Number(target.value);
-        setInput(value);
-    }
+    const resultValue = (currency) => {
+        const currentCurrency = apiData.filter((item) => item.cc === currency);
+
+        const currentRate = currentCurrency[0].rate;
+
+        const currentSign = () => {
+            switch (currentCurrency[0].cc) {
+                case "USD":
+                    return "$";
+                case "EUR":
+                    return "€";
+            }
+        };
+
+        const calculated = count / currentRate;
+
+        setCurrentSign(currentSign);
+        setResult(calculated.toFixed(2));
+    };
 
     return (
         <div className="app">
-            <div className="out">
-                <div className="counter">
-                    <input type="text" onChange={setInputValue} />
-                    <span>UAN</span>
-                </div>
-                <div>=</div>
-                <div className="counter">
-                    {curr}
-                    <span>{currName}</span>
-                </div>
+            <div className="count">
+                <span>Введите количество UAH:</span>
+                <input type="text" onChange={updateCounterState} />
+                <span>Введённое количество: {count}</span>
+            </div>
+            <div className="counter">
+                {result} {currentSign}
             </div>
             <div className="controls">
-                <button onClick={() => searchVal("USD")}>USD</button>
-                <button onClick={() => searchVal("EUR")}>EUR</button>
-                <button onClick={() => searchVal("RUB")}>RUB</button>
-                <button onClick={() => searchVal("DKK")}>DKK</button>
+                <button onClick={() => resultValue("USD")}>USD</button>
+                <button onClick={() => resultValue("EUR")}>EUR</button>
+                <button onClick={resetCounter}>Reset</button>
             </div>
         </div>
     );
-}
+};

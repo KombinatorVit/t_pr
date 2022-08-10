@@ -37,7 +37,7 @@ const App = (props) => {
                 <button onClick={resetCounter}>RESET</button>
             </div>
             <Slider/>
-            <Convertor />
+            <Convertor start={0} />
         </div>
     )
 }
