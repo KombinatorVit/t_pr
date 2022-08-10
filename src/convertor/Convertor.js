@@ -2,75 +2,60 @@ import './convertor.css'
 import {useEffect, useState} from "react";
 
 export  function Convertor(props) {
-    const [apiData, setApiData] = useState('');
-    const [count, setCount] = useState(props.start);
-    const [result, setResult] = useState(0);
-    const [currentSign, setCurrentSign] = useState(null);
+    const [dateCurrency, setDateCurrency] = useState();
+    const [selectedCurrency, setCelectedCurrency] = useState("USD");
+    const [exchangeRate, setExchangeRate] = useState();
+    const [moneyForTransfer, setMoneyForTransfer] = useState(100);
+    const [result, setResult] = useState();
 
-    const getResource = async (url) => {
-        let res = await fetch(url);
-
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, received ${res.status}`);
-        }
-
-        return await res.json();
-    };
-    const getCharacter = async () => {
-        const res = await getResource(
-            "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchangenew?json"
-        );
-        setApiData(res);
-
+    const getRequest = async (url) => {
+        const respons = await fetch(url);
+        const data = await respons.json();
+        setDateCurrency(data.Valute);
     };
 
     useEffect(() => {
-        getCharacter();
+        getRequest("https://www.cbr-xml-daily.ru/daily_json.js");
     }, []);
 
-    const updateCounterState = (e) => {
-        setCount(e.target.value);
-    };
-    const resetCounter = () => {
-        setResult(null);
-        setCurrentSign(null);
-    };
+    useEffect(() => {
+        getCurrency(selectedCurrency);
+    });
 
-    const resultValue = (currency) => {
-        const currentCurrency = apiData.filter((item) => item.cc === currency);
-
-        const currentRate = currentCurrency[0].rate;
-
-        const currentSign = () => {
-            switch (currentCurrency[0].cc) {
-                case "USD":
-                    return "$";
-                case "EUR":
-                    return "€";
+    const getCurrency = (key) => {
+        for (const prop in dateCurrency) {
+            if (prop === key) {
+                setExchangeRate(dateCurrency[prop].Value);
             }
-        };
+        }
+        setCelectedCurrency(key);
+        setResult((moneyForTransfer / exchangeRate).toFixed(2));
+    };
 
-        const calculated = count / currentRate;
-
-        setCurrentSign(currentSign);
-        setResult(calculated.toFixed(2));
+    const getValueInput = (value) => {
+        setMoneyForTransfer(value);
     };
 
     return (
         <div className="app">
-            <div className="count">
-                <span>Введите количество UAH:</span>
-                <input type="text" onChange={updateCounterState} />
-                <span>Введённое количество: {count}</span>
+            <div className="text">
+                <div>У меня есть:</div>
+                <input
+                    className="value"
+                    defaultValue={moneyForTransfer}
+                    onChange={(e) => getValueInput(+e.target.value)}
+                />
+                <div className="text">РУБЛЕЙ</div>
             </div>
-            <div className="counter">
-                {result} {currentSign}
-            </div>
+            <div className="text">Хочу приобрести:</div>
             <div className="controls">
-                <button onClick={() => resultValue("USD")}>USD</button>
-                <button onClick={() => resultValue("EUR")}>EUR</button>
-                <button onClick={resetCounter}>Reset</button>
+                <button onClick={() => getCurrency("USD")}>USD</button>
+                <button onClick={() => getCurrency("EUR")}>EUR</button>
+                <button onClick={() => getCurrency("GBP")}>GBP</button>
+                <button onClick={() => getCurrency("JPY")}>JPY</button>
             </div>
+            <div className="counter">{result + " " + selectedCurrency}</div>
         </div>
     );
 };
+
