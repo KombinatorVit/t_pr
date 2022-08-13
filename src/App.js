@@ -1,49 +1,59 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import {Container} from 'react-bootstrap';
 import './App.css';
-import {Slider} from "./slider/Slider";
-import {Convertor} from "./convertor/Convertor";
 
+function useInputWithValidate(initialValue) {
+    const [value, setValue] = useState(initialValue)
 
-const App = (props) => {
-    const [counter, setCounter] = useState(props.counter);
-
-    const incCounter = () => {
-        if (counter < 50) {
-            setCounter(counter => counter + 1)
-        }
+    const onChange = e => {
+        setValue(e.target.value)
     }
 
-    const decCounter = () => {
-        if (counter > -50) {
-            setCounter(counter => counter - 1)
-        }
+    const validateInput = () => {
+        return value.search(/\d/) >= 0
     }
+    return {value, onChange, validateInput}
+}
 
-    const rndCounter = () => {
-        setCounter(+(Math.random() * (50 - -50) + -50).toFixed(0))
-    }
+const Form = () => {
 
-    const resetCounter = () => {
-        setCounter(props.counter)
-    }
+
+    const input = useInputWithValidate('')
+    const textArea = useInputWithValidate('')
+
+
+    const color = input.validateInput() ? 'text-danger' : null;
 
     return (
-        <div className="app">
-            <div className="counter">{counter}</div>
-            <div className="controls">
-                <button onClick={incCounter}>INC</button>
-                <button onClick={decCounter}>DEC</button>
-                <button onClick={rndCounter}>RND</button>
-                <button onClick={resetCounter}>RESET</button>
-            </div>
-            <Slider/>
-            <Convertor  />
-        </div>
+        <Container>
+            <form className="w-50 border mt-5 p-3 m-auto">
+                <div className="mb-3">
+                    <input value={`${input.value}/ ${textArea.value}`} type="text" className="form-control" readOnly/>
+                    <label htmlFor="exampleFormControlInput1" className="form-label mt-3">Email address</label>
+                    <input
+                        onChange={input.onChange}
+                        type="email"
+                        value={input.value} className={`form-control ${color}`} id="exampleFormControlInput1"
+                        placeholder="name@example.com"/>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="exampleFormControlTextarea1" className="form-label">Example textarea</label>
+                    <textarea
+                        onChange={textArea.onChange}
+                        value={textArea.value}
+                        className="form-control" id="exampleFormControlTextarea1"
+                        rows="3"></textarea>
+                </div>
+            </form>
+        </Container>
     )
 }
 
-
+function App() {
+    return (
+        <Form/>
+    );
+}
 
 export default App;
-
 
